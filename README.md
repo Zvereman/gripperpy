@@ -1,5 +1,6 @@
 # gripperpy
 Used Python 3.11
+
 Gripper ASBIS. Modbus TCP
 
 This is a small gripper control program. It is also an example of using the Modbus TCP protocol developed using Python (PyQt5) and a dynamic chart created using QML.
