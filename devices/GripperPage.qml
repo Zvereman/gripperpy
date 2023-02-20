@@ -1,7 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-//import QtCharts 2.15
+import QtCharts 2.15
 
 import "../common"
 
@@ -72,6 +72,8 @@ Page {
                     RangeSlider {
                         id: currentPosition
 
+                        enabled: false
+
                         from: minPositionValue
                         to: maxPositionValue
 
@@ -112,6 +114,8 @@ Page {
                     Slider {
                         id: gripperVelocity
 
+                        enabled: false
+
                         from: minVelocityValue
                         to: maxVelocityValue
 
@@ -142,7 +146,6 @@ Page {
                     Layout.fillWidth: true
                     onClicked: {
                         backend.connect()
-                        //scopeView.getChartInfoTimer.start()
                     }
                 }
                 Button {
@@ -150,12 +153,15 @@ Page {
                     Layout.fillWidth: true
                     onClicked: {
                         backend.disconnect()
-                        //scopeView.getChartInfoTimer.stop()
+                        currentPosition.enabled = false
+                        gripperVelocity.enabled = false
+                        scopeView.getChartInfoTimer.stop()
                         inited = false
                     }
                 }
 
                 Button {
+                    enabled: currentPosition.enabled && gripperVelocity.enabled
                     text: qsTr("Open gripper")
                     Layout.fillWidth: true
                     onClicked: {
@@ -164,6 +170,7 @@ Page {
                     }
                 }
                 Button {
+                    enabled: currentPosition.enabled && gripperVelocity.enabled
                     text: qsTr("Close gripper")
                     Layout.fillWidth: true
                     onClicked: {
@@ -187,11 +194,11 @@ Page {
                 Layout.fillWidth: true
             }
 
-//            ScopeView {
-//                id: scopeView
-//                Layout.fillWidth: true
-//                Layout.fillHeight: true
-//            }
+            ScopeView {
+                id: scopeView
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+            }
         }
     }
 
@@ -206,9 +213,26 @@ Page {
             gripperCurrentPosition.text = currPos
             globalPosition = currPos
 
-            let tempFirst = minPositionValue + ((maxPositionValue - currPos) / 2)
-            let tempSecond = maxPositionValue - ((maxPositionValue - currPos) / 2)
-            currentPosition.setValues(tempFirst, tempSecond)
+            if (!inited) {
+                let tempFirst = minPositionValue + ((maxPositionValue - currPos) / 2)
+                let tempSecond = maxPositionValue - ((maxPositionValue - currPos) / 2)
+                currentPosition.setValues(tempFirst, tempSecond)
+                inited = true
+            }
+        }
+
+        function onInfoMsg(msgText, noError) {
+            globalInfoPopup.showMessage(msgText, noError)
+        }
+
+        function onConnected(isConnected) {
+            currentPosition.enabled = isConnected
+            gripperVelocity.enabled = isConnected
+            if (isConnected) {
+                scopeView.getChartInfoTimer.start()
+            } else {
+                scopeView.getChartInfoTimer.stop()
+            }
         }
     }
 }
