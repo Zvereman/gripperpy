@@ -1,0 +1,3 @@
+{
+    "files": ["main.py","common/InfoPopup.qml","common/GText.qml","main.qml","common/ScopeView.qml","devices/GripperPage.qml"]
+}
